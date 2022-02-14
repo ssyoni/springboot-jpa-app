@@ -9,7 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
-
+/*
+* 사용자가 물건을 주문할 때 생성되는 엔티티
+* 사용자(member), 주문 상품(orderItem), 주문(delivery) 와 참조관계를 갖는다.
+* 비즈니스 로직 : 주문취소기능 -> orderStatus : CANCEL , 주문 상품의 재고수량 정정(OrderItem.cancel -> Item.removeStock)
+* 조회로직 : 전체 주문가격 조회 -> OrderItem 에서 총 금액을 가져와서 totalPrice 에 더해줌
+* */
 @Entity
 @Table(name = "orders")
 @Getter @Setter
@@ -52,4 +57,43 @@ public class Order {
         delivery.setOrder(this);
     }
 
+    //==생성 메서드==//
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems){
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems){
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER); // 처음엔 무조건 주문상태로 고정
+        order.setOrderDate(LocalDateTime.now()); // 현재시간으로 고정
+        return order;
+    }
+
+    //==비즈니스 로직==//
+    /**
+     * 주문 취소
+     * */
+    public void cancel(){
+        if (delivery.getStatus() == DeliveryStatus.COMP){
+            throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능합니다.");
+        }
+
+        this.setStatus(OrderStatus.CANCEL); // 취소상태로 변경
+        for (OrderItem orderItem : orderItems){ // 주문상품의 재고 수정해주기
+            orderItem.cancel();
+        }
+    }
+
+    //==조회 로직==//
+    /** 전체 주문 가격 조회 */
+    public int getTotalPrice(){
+        int totalPrice = orderItems.stream().mapToInt(OrderItem::getTotalPrice).sum();
+        /*for (OrderItem orderItem:orderItems){
+            totalPrice += orderItem.getTotalPrice(); // 상품 가격 * 주문수량
+
+        }*/
+        // 상품 가격 * 주문수량
+        return totalPrice;
+    }
 }
