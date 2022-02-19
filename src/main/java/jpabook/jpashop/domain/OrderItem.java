@@ -1,7 +1,9 @@
 package jpabook.jpashop.domain;
 
 import jpabook.jpashop.domain.item.Item;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -16,6 +18,7 @@ import static javax.persistence.FetchType.*;
 * */
 @Entity
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
     @Id @GeneratedValue
@@ -32,6 +35,16 @@ public class OrderItem {
 
     private int orderPrice; //주문가격
     private int count; //주문수량
+
+    /*
+    protected OrderItem(){
+        //생성하는 방식을 누구는 createOrderItem메소드를 사용하고 누구는 new 로 생성할 수 있음.
+        // 이렇게 되면 유지보수성이 안좋아짐. 중구난방 코드가 된다.
+        // => protected로 기본 생성자 만들어 놓으면 외부에서 new ~~방식으로 생성자 호출할 수 없게 됨.
+    }
+    ==> @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    ==> 코드를 제약하는 방식으로 짜는게 좋은 설계가 될 수 있다.
+    * */
 
     //==생성 메서드==//
     public static OrderItem createOrderItem(Item item, int orderPrice, int count){
