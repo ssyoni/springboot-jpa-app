@@ -70,16 +70,7 @@ public class ItemController {
     /** 상품 수정 */
     @PostMapping("/items/{itemId}/edit")
     public String updateItem(@ModelAttribute("form") BookForm bookForm){
-
-        Book book = new Book();
-        book.setId(bookForm.getId());
-        book.setIsbn(bookForm.getIsbn());
-        book.setAuthor(bookForm.getAuthor());
-        book.setStockQuantity(bookForm.getStockQuantity());
-        book.setPrice(bookForm.getPrice());
-        book.setName(bookForm.getName());
-
-        itemService.saveItem(book);
+        itemService.updateItem(bookForm.getId(), bookForm.getName(), bookForm.getPrice());
         return "redirect:/items";
     }
 }

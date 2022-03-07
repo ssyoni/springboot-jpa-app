@@ -20,6 +20,14 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional
+    public void updateItem(Long itemId, String name, int price){
+        // 영속성 컨텍스트가 자동 반영
+        Item item = itemRepository.findOne(itemId);
+        item.setName(name);
+        item.setPrice(price);
+    }
+
     public List<Item> findItems(){
         return itemRepository.findAll();
     }
